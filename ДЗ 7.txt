@@ -1,0 +1,141 @@
+###1. Реализовать класс Matrix (матрица). Обеспечить перегрузку конструктора класса (метод __init__()), 
+который должен принимать данные (список списков) для формирования матрицы.
+Подсказка: матрица — система некоторых математических величин, расположенных в виде прямоугольной схемы.
+Примеры матриц вы найдете в методичке.
+Следующий шаг — реализовать перегрузку метода __str__() для вывода матрицы в привычном виде.
+Далее реализовать перегрузку метода __add__() для реализации операции сложения 
+двух объектов класса Matrix (двух матриц). Результатом сложения должна быть новая матрица.
+Подсказка: сложение элементов матриц выполнять поэлементно — первый элемент 
+первой строки первой матрицы складываем с первым элементом первой строки второй матрицы и т.д.###
+
+
+class Matrix:
+    def __int__(self, matrix):
+        self.matrix = matrix
+
+    def __str__(self):
+        my_str = '\n'
+        for row in self.matrix:  # для каждого списка в матрице
+            for el in row:  # перебирается элемент
+                my_str += f'{el:>10}'  # формируется строчка , отступ справа от элемента
+            my_str += '\n'  # каждая строчка закказничивается переносом строки
+        return my_str  # на выходе получается my_str
+
+    def __add__(self, other):   # у add всегда есть входной аргумент other
+        add = []  # сложение
+        if len(self.matrix) != len(other.matrix):  # размерность матрицы совпадают
+            print('Please check matrixes dimensions')
+            return  None
+        for i in range(len(self.matrix)):  # проходим циклом по собственной матрицы по индексу i
+            if len(self.matrix[i]) != len(other.matrix[i]):
+                print('Please check matrixes dimensions')
+                return None
+            row = []  # результат
+            for j in range(len(self.matrix[i])):
+                row.append(self.matrix[i][j] + other.matrix[i][j])
+            add.append(row)
+
+        return Matrix(add)  # список со списками
+
+
+my_m1 = Matrix([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]])
+print(f'my_m1 = {my_m1}')
+my_m2 = Matrix([[10, 20, 30, 40], [50, 60, 70, 80], [90, 100, 110, 120]])
+print(f'my_m2 = {my_m2}')
+print(f'my_m1 + my_m2 = {my_m1 + my_m2}')
+
+
+
+###2. Реализовать проект расчета суммарного расхода ткани на производство одежды. 
+Основная сущность (класс) этого проекта — одежда, которая может иметь определенное название. 
+К типам одежды в этом проекте относятся пальто и костюм. У этих типов одежды существуют параметры: 
+размер (для пальто) и рост (для костюма). Это могут быть обычные числа: V и H, соответственно.
+Для определения расхода ткани по каждому типу одежды использовать формулы: для пальто (V/6.5 + 0.5), 
+для костюма (2 * H + 0.3). Проверить работу этих методов на реальных данных.
+Реализовать общий подсчет расхода ткани. Проверить на практике полученные на этом уроке знания: 
+реализовать абстрактные классы для основных классов проекта, проверить на практике работу декоратора @property.###
+
+from abc import ABC, abstractmethod
+
+
+class Stuff(ABC):
+    def __init__(self, param):
+        self.param = param
+
+    @abstractmethod
+    def get_consumption(self):
+        pass
+
+class Coat(Stuff):
+    def __init__(self, param):
+        super().__init__(param)
+        print(f'There is a new coat with size {self.param}')
+
+    @property
+    def get_consumption(self):
+        return round(self.param / 6.5 + 0.5, 2)
+
+class Suit(Stuff):
+    def __init__(self, param):
+        super().__init__(param)
+        print(f'There is a new suit with height {self.param}')
+
+    @property
+    def get_consumption(self):
+        return round(self.param * 2 + 0.3, 2)
+
+my_coat = Coat(48)
+print(f'Tissue consumption for my coat is: {my_coat.get_consumption}')
+my_suit = Suit(1.78)
+print(f'Tissue consumption for my suit is: {my_suit.get_consumption}')
+print(f'The total issue consumption is: {my_coat.get_consumption + my_suit.get_consumption}')
+
+
+
+###3. Реализовать программу работы с органическими клетками. Необходимо создать класс Клетка. В его конструкторе 
+инициализировать параметр, соответствующий количеству клеток (целое число). В классе должны быть реализованы методы 
+перегрузки арифметических операторов: сложение (__add__()), вычитание (__sub__()), умножение (__mul__()), деление (__truediv__()).
+Данные методы должны применяться только к клеткам и выполнять увеличение, уменьшение, умножение и обычное (не целочисленное) 
+деление клеток, соответственно. В методе деления должно осуществляться округление значения до целого числа.###
+
+
+
+class Cell:
+    def __init__(self, num):  # кол-во ячеек
+        try :
+            if num <= 0:
+                raise ValueError('num should be > 0')
+            self.num = int(num)
+        except TypeError:
+            self.num = 1
+            print('Check num value')
+        except ValueError:
+            print('Check num value')
+            self.num = 1
+
+    def __add__(self, other):  # сумма
+        return Cell(self.num + other.num)
+
+    def __sub__(self, other):
+        if self.num - other.num > 0:
+            return  Cell(self.num - other.num)
+        else:
+            print('Subtraction is impossible')
+
+    def __mul__(self, other):
+        return Cell(self.num * other.num)
+
+    def __truediv__(self, other):
+        return Cell(self.num // other.num)
+
+    def make_order(self, param):  # make_order - в качестве ячеек нарисует *
+        return (('*' * param) + '\n') * (self.num // param) + '*' * (self.num % param)
+
+cell_1 = Cell(12)
+cell_2 = Cell(15)
+print(cell_1.make_order(5))
+print()
+print(cell_2.make_order(5))
+
+cell_3 = cell_1+cell_2
+print(cell_3.make_order(5))
